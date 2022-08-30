@@ -1,14 +1,55 @@
 const User = require('../models/Users');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
     try {
-        const users = await User.find();
+
+        const { username, password } = req.body;
+        
+        if(!username || !password){
+            return res.status(400).json({message: 'All fields are required'})
+        }
+
+        const user = await User.findOne({ username }).exec();
+
+        if(!user || !user.active){
+            return res.status(400).json({message: 'no user found'});
+        }
+
+        const match = await bcrypt.compare(password, user.password);
+
+        if(!match){
+            return res.status(401).json({message: 'Unauthorized'});
+        }
+
+        const acceessToken = jwt.sign(
+            { "username": {
+                    "username": user.username
+                }
+            },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: '10s' }
+        )
+
+        const refreshToken = jwt.sign(
+            { "username": user.username },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '1d' }
+        )
+
+        res.cookie('jwt', refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
         res.status(200).json({
-            status: 'true',
-            data: users
+            acceessToken
         })
     } catch (error) {
+        console.log(error);
         res.status(404).json({
             status: 'failed',
             err: error
@@ -21,7 +62,6 @@ exports.getAllUsers = async (req, res) => {
     try {
         // const users = User.find().select('-password').lean();
         const users = await User.find().select('-password').lean();
-        console.log(users);
         res.status(200).json({
             status: 'true',
             data: users
