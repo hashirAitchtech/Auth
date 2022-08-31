@@ -6,7 +6,7 @@ exports.login = async (req, res) => {
     try {
 
         const { username, password } = req.body;
-        
+        console.log(req.body);
         if(!username || !password){
             return res.status(400).json({message: 'All fields are required'})
         }
@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
         }
 
         const acceessToken = jwt.sign(
-            { "username": {
+            { "UserInfo": {
                     "username": user.username
                 }
             },
@@ -149,7 +149,7 @@ exports.refresh = async (req, res) => {
                 if(!foundUser) return res.status(401).json({message: 'Unauthorized'});
 
                 const acceessToken = jwt.sign(
-                    { "username": {
+                    { "UserInfo": {
                             "username": foundUser.username
                         }
                     },
