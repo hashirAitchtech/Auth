@@ -105,15 +105,70 @@ exports.register = async (req, res) => {
     }
 
 }
-exports.logout = (req, res) => {
-    res.status(201).json({
-        status: 'success',
-        data: 'User logged out'
-    })
+exports.logout = async (req, res) => {
+    try {
+        
+        const cookie = req.cookies;
+
+        if(!cookies?.jwt) return res.sendStatus(204);
+
+        res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'None' });
+
+        res.json({ meesage: 'Cookie cleared' });
+
+        res.status(201).json({
+            status: 'success',
+            data: 'User logged out'
+        })
+    } catch (error) {
+        res.status(201).json({
+            status: 'success',
+            error: error
+        })
+    }
 }
-exports.refresh = (req, res) => {
-    res.status(201).json({
-        status: 'success',
-        data: 'User refreshed'
-    })
+exports.refresh = async (req, res) => {
+    try {
+
+        const cookies = req.cookies;
+
+        if(!cookies?.jwt){
+            return res.status(401).json({message: 'Unauthorized'});
+        }
+
+        const refreshToken = cookies.jwt;
+
+        jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+            async (err, decoded) => {
+                if(err) res.status(403).json({message: 'Forbidden'});
+
+                const foundUser = await User.findOne({username: decoded.username});
+
+                if(!foundUser) return res.status(401).json({message: 'Unauthorized'});
+
+                const acceessToken = jwt.sign(
+                    { "username": {
+                            "username": foundUser.username
+                        }
+                    },
+                    process.env.ACCESS_TOKEN_SECRET,
+                    { expiresIn: '10s' }
+                )
+                
+            }
+        )
+
+        res.status(201).json({
+            status: 'success',
+            data: 'User refreshed'
+        })
+    } catch (error) {
+        res.status(401).json({
+            status: 'Error',
+            error: error
+        })
+    }
+    
 }
