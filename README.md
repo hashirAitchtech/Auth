@@ -1,18 +1,18 @@
 # Auth
 
-### Open API Generation Guide
 
-Note: In order to run these commands you should have docker installed and running.
+### Generating with docker
 
-{% warning %}
-{% note %}
+Note: In order to generate open api client with docker you need to have docker installed and running.
 
-**Note:**
-
-#### For windows
-
+#### For Windows:
+Type the folowing commands in powershell:
 ```
-some commands
+docker run --rm `
+    -v ${PWD}:/local `
+    openapitools/openapi-generator-cli generate `
+    -i https://range-boby-test.fortresslab.org/range/v3/api-docs `
+    -g typescript-angular `
+    -o /local/src/generated/api-client `
+    --additional-properties supportsES6=true
 ```
-
-
