@@ -1,6 +1,6 @@
 # Auth
 
-## Open API Generation Guide
+### Open API Generation Guide
 
 ```
 some commands
