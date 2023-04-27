@@ -21,7 +21,7 @@ app.use('/users', usersRouter);
 app.use(globalErrorHandler);
 
 function globalErrorHandler(err, req, res, next){
-
+    console.log('in global', err);
     res.status(400).json({
         status: 'failed',
         error: err

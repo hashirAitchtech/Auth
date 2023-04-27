@@ -25,11 +25,12 @@ exports.login = async (req, res) => {
 
         const acceessToken = jwt.sign(
             { "UserInfo": {
-                    "username": user.username
+                    "username": user.username,
+                    "roles": user.roles
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '10s' }
+            { expiresIn: '60s' }
         )
 
         const refreshToken = jwt.sign(
@@ -171,4 +172,21 @@ exports.refresh = async (req, res) => {
         })
     }
     
+}
+
+exports.test = async (req, res) => {
+    try {
+        const cookie = req.cookies;
+        console.log(cookie);
+        res.status(200).json({
+            status: 'success',
+            data: 'test'
+        })
+        
+    } catch (error) {
+        res.status(400).json({
+            status: 'Error',
+            error: error
+        })
+    }
 }
