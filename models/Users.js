@@ -11,8 +11,8 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Password is required']
     },
     roles: {
-        type: String,
-        default: "Employee"
+        type: [String],
+        default: ["Employee"]
     },
     active: {
         type: Boolean,

@@ -1,12 +1,16 @@
 const express = require('express');
-
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const swaggerUI = require('swagger-ui-express');
+const swaggerJsDoc = require('swagger-jsdoc');
 
 const corsOptions = require('./config/corsOptions');
 
-const usersRouter = require('./routes/users')
+const {swaggerJSDocOptions, swaggerUIOptions} = require('./config/swaggerConfig');
+
+const usersRouter = require('./routes/users');
+const globalErrorHandler = require('./utils/globalErrorHandler');
 
 const app = express();
 
@@ -18,31 +22,17 @@ app.use(cookieParser());
 
 app.use('/users', usersRouter);
 
+const specs = swaggerJsDoc(swaggerJSDocOptions);
+
+// swagger UI
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs, swaggerUIOptions));
+
+// API definitions (JSON)
+app.get("/api-docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(specs);
+});
+
 app.use(globalErrorHandler);
-
-function globalErrorHandler(err, req, res, next){
-    console.log('in global', err);
-    res.status(400).json({
-        status: 'failed',
-        error: err
-    })
-
-//   err.statusCode = err.statusCode || 500;
-//   err.status = err.status || 'error';
-    
-//   if (process.env.NODE_ENV === 'development') {
-//     sendErrorDev(err, res);
-//   }else if(process.env.NODE_ENV === 'production'){
-//   	let error = { ...err };
-
-//     if (error.name === 'CastError') error = handleCastErrorDB(error);
-//     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
-//     if (error.name === 'ValidationError')
-//       error = handleValidationErrorDB(error);
-//     if (error.name === 'JsonWebTokenError') error = handleJWTError();
-//     if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
-
-//     sendErrorProd(error, res);
-  }
 
 module.exports = app;

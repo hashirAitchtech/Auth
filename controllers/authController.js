@@ -6,7 +6,6 @@ exports.login = async (req, res) => {
     try {
 
         const { username, password } = req.body;
-        console.log(req.body);
         if(!username || !password){
             return res.status(400).json({message: 'All fields are required'})
         }
@@ -23,14 +22,14 @@ exports.login = async (req, res) => {
             return res.status(401).json({message: 'Unauthorized'});
         }
 
-        const acceessToken = jwt.sign(
+        const accessToken = jwt.sign(
             { "UserInfo": {
                     "username": user.username,
                     "roles": user.roles
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '60s' }
+            { expiresIn: '160s' }
         )
 
         const refreshToken = jwt.sign(
@@ -47,10 +46,9 @@ exports.login = async (req, res) => {
         })
 
         res.status(200).json({
-            acceessToken
+            accessToken
         })
     } catch (error) {
-        console.log(error);
         res.status(404).json({
             status: 'failed',
             err: error
@@ -58,15 +56,14 @@ exports.login = async (req, res) => {
     }
 }
 
+
 // Get all users
 exports.getAllUsers = async (req, res) => {
     try {
+        
         // const users = User.find().select('-password').lean();
-        const users = await User.find().select('-password').lean();
-        res.status(200).json({
-            status: 'true',
-            data: users
-        })
+        const users = await User.find().select('-password -__v').lean();
+        res.status(200).json(users)
     } catch (error) {
         res.status(404).json({
             status: 'failed',
@@ -94,7 +91,6 @@ exports.register = async (req, res) => {
 
         const newUser = await User.create(userObj);
         res.status(201).json({
-            status: 'success',
             data: newUser
         })
 
@@ -108,22 +104,21 @@ exports.register = async (req, res) => {
 }
 exports.logout = async (req, res) => {
     try {
-        
-        const cookie = req.cookies;
 
-        if(!cookies?.jwt) return res.sendStatus(204);
+        const cookies = req.cookies;
+        
+
+        if(!cookies?.jwt) return res.status(200).json({status: 'No cookie present'});
 
         res.clearCookie('jwt', { httpOnly: true, secure: true, sameSite: 'None' });
 
-        res.json({ meesage: 'Cookie cleared' });
 
-        res.status(201).json({
+        res.status(200).json({
             status: 'success',
-            data: 'User logged out'
         })
     } catch (error) {
         res.status(201).json({
-            status: 'success',
+            status: 'failed',
             error: error
         })
     }
@@ -149,7 +144,7 @@ exports.refresh = async (req, res) => {
 
                 if(!foundUser) return res.status(401).json({message: 'Unauthorized'});
 
-                const acceessToken = jwt.sign(
+                const accessToken = jwt.sign(
                     { "UserInfo": {
                             "username": foundUser.username
                         }
@@ -172,21 +167,4 @@ exports.refresh = async (req, res) => {
         })
     }
     
-}
-
-exports.test = async (req, res) => {
-    try {
-        const cookie = req.cookies;
-        console.log(cookie);
-        res.status(200).json({
-            status: 'success',
-            data: 'test'
-        })
-        
-    } catch (error) {
-        res.status(400).json({
-            status: 'Error',
-            error: error
-        })
-    }
 }
