@@ -30,7 +30,7 @@ const verifyJWT = require('../middleware/verifyJWT');
  *              content:
  *                  application/json:
  *                      schema:
- *                          $ref: '#/components/schemas/LoginResponse'
+ *                          $ref: '#/components/schemas/LoginResponseDTO'
  */
 router.route('/login')
     .post(authController.login);
@@ -50,7 +50,7 @@ router.route('/login')
  *                      schema:
  *                          type: array
  *                          items:
- *                              $ref: '#/components/schemas/User'
+ *                              $ref: '#/components/schemas/UserDTO'
  */
 router.route('/getAllUsers')
     .get(authController.getAllUsers);
@@ -63,6 +63,26 @@ router.route('/refresh')
 router.route('/logout')
     .post(authController.logout);
 
+/**
+ * @swagger
+ * /users/register:
+ *   post:
+ *      tags: [Users] 
+ *      summary: Register new user
+ *      requestBody:
+ *          required: true
+ *          content: 
+ *              application/json: 
+ *                  schema: 
+ *                      $ref: '#/components/schemas/LoginDTO' 
+ *      responses:
+ *          201:
+ *              description: Register
+ *              content:
+ *                  application/json:
+ *                      schema:
+ *                          $ref: '#/components/schemas/UserDTO'
+ */
 router.route('/register')
     .post(authController.register);
 
