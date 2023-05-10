@@ -42,6 +42,7 @@
  *      UserDTO:
  *          type: object
  *          required:
+ *              - _id
  *              - username
  *              - roles
  *              - active

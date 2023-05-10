@@ -6,14 +6,11 @@ exports.login = async (req, res) => {
     try {
 
         const { username, password } = req.body;
-        console.log(req.body);
         if(!username || !password){
             return res.status(400).json({message: 'All fields are required'})
         }
 
         const user = await User.findOne({ username }).select("+password").exec();
-
-        console.log(user);
 
         if(!user || !user.active){
             return res.status(400).json({message: 'no user found'});
